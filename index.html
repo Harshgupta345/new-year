@@ -295,23 +295,35 @@
 
     <script>
         /* MUSIC */
-        let music; const START_TIME = 45; let started = false;
-        document.addEventListener("DOMContentLoaded", () => {
-            music = document.getElementById("bgMusic");
-            if (!music) return;
-            if (localStorage.getItem("music") === "on") { playMusic(); }
-            else { document.addEventListener("click", playMusic, { once: true }); document.addEventListener("touchstart", playMusic, { once: true }); }
-        });
-        function playMusic() {
-            if (!music || started) return;
-            const start = () => {
-                music.currentTime = START_TIME;
-                music.volume = 0.5;
-                music.play().then(() => { started = true; localStorage.setItem("music", "on"); }).catch(() => { });
-            };
-            if (music.readyState >= 1) { start(); } else { music.addEventListener("loadedmetadata", start, { once: true }); }
-        }
+<script>
+let music;
+let started = false;
+const START_TIME = 45;
 
+document.addEventListener("DOMContentLoaded", () => {
+    music = document.getElementById("bgMusic");
+
+    const startMusic = () => {
+        if (started) return;
+        started = true;
+
+        music.volume = 0.5;
+        music.play().then(() => {
+            // thoda delay dekar seek karo (fast + reliable)
+            setTimeout(() => {
+                music.currentTime = START_TIME;
+            }, 300);
+        }).catch(() => {});
+
+        document.removeEventListener("click", startMusic);
+        document.removeEventListener("touchstart", startMusic);
+    };
+
+    // First user interaction = instant play
+    document.addEventListener("click", startMusic);
+    document.addEventListener("touchstart", startMusic);
+});
+</script>
         /* MOOD */
         function mood(type) {
             if (type === "romantic") { document.body.style.background = "radial-gradient(circle at top,#050014,#000)"; playMusic(); }
@@ -345,6 +357,7 @@
 
 
 </html>
+
 
 
 
